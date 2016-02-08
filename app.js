@@ -1,39 +1,9 @@
-var express = require('express')
-
-var app = express();
-
-var bodyParser = require('body-parser');
-
-var db_string = 'mongodb://127.0.0.1/exemplowebservice'
-
-var mongoose = require('mongoose').connect(db_string);
-
-var db = mongoose.connection;
+var app = require('./app_config.js');
+var db = require('./db_config.js');
 
 var validator = require('validator');
 
-var Pokemon;
 
-db.on('error', console.error.bind(console, 'Erro ao conectar no banco'));
-
-db.once('open', function(){
-	var userSchema = mongoose.Schema({
-		name: String,
-		type: String,
-		password: String,
-		created_at: Date
-	});
-
-	Pokemon = mongoose.model('Pokemon', userSchema);
-});
-
-app.listen(5000);
-
-app.use(bodyParser.json());
-
-app.use(bodyParser.urlencoded({
-	extend: true
-}));
 
 app.get('/' , function(req, res){
 
@@ -43,7 +13,7 @@ app.get('/' , function(req, res){
 
 app.get('/pkmns' , function(req, res){
 	
-	Pokemon.find({}, function(error, pkmns){
+	db.Pokemon.find({}, function(error, pkmns){
 		if (error) {
 			res.json({error: 'Não foi possivel retornar os pokemons'});
 		}else{
@@ -56,7 +26,7 @@ app.get('/pkmn/:id' , function(req, res){
 	
 	var id = validator.trim(validator.escape(req.param('id')));
 
-	Pokemon.findById(id, function(error, pkmn){
+	db.Pokemon.findById(id, function(error, pkmn){
 		if (error) {
 			res.json({error: 'Não foi possivel retornar o pokemon'});
 		}else{
@@ -92,7 +62,7 @@ app.put('/pkmn' , function(req, res){
 	var type = validator.trim(validator.escape(req.param('type')));
 	var password = validator.trim(validator.escape(req.param('password')));
 
-	Pokemon.findById(id, function(error, pkmn){
+	db.Pokemon.findById(id, function(error, pkmn){
 		if(name){
 			pkmn.name = name;
 		}
@@ -116,7 +86,7 @@ app.put('/pkmn' , function(req, res){
 app.delete('/pkmn/:id', function(req, res){
 	var id = validator.trim(validator.escape(req.param('id')));
 
-	Pokemon.findById(id, function(error, pkmn){
+	db.Pokemon.findById(id, function(error, pkmn){
 		if (error) {
 			res.json({error: 'Não foi possivel retornar o pokemon'});
 		}else{
