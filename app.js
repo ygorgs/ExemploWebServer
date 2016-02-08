@@ -4,6 +4,27 @@ var app = express();
 
 var bodyParser = require('body-parser');
 
+var db_string = 'mongodb://127.0.0.1/exemplowebservice'
+
+var mongoose = require('mongoose').connect(db_string);
+
+var db = mongoose.connection;
+
+var Pokemon;
+
+db.on('error', console.error.bind(console, 'Erro ao conectar no banco'));
+
+db.once('open', function(){
+	var userSchema = mongoose.Schema({
+		name: String,
+		type: String,
+		password: String,
+		created_at: Date
+	});
+
+	Pokemon = mongoose.model('Pokemon', userSchema);
+});
+
 app.listen(5000);
 
 app.use(bodyParser.json());
@@ -13,29 +34,95 @@ app.use(bodyParser.urlencoded({
 }));
 
 app.get('/' , function(req, res){
+
 	res.end('Servidor ON!');
+
 });
 
-app.get('/users' , function(req, res){
-	res.json([
-		{name: "Bulbasaur"},
-		{name: "Charmander"},
-		{name: "Squirtle"}
-	]);
-}); 
-
-app.get('/users/:id' , function(req, res){
+app.get('/pkmns' , function(req, res){
 	
+	Pokemon.find({}, function(error, pkmns){
+		if (error) {
+			res.json({error: 'Não foi possivel retornar os pokemons'});
+		}else{
+			res.json(pkmns);
+		}
+	});
 }); 
 
-app.post('/users' , function(req, res){
-	res.end('post users');
+app.get('/pkmn/:id' , function(req, res){
+	
+	var id = req.param('id');
+
+	Pokemon.findById(id, function(error, pkmn){
+		if (error) {
+			res.json({error: 'Não foi possivel retornar o pokemon'});
+		}else{
+			res.json(pkmn);
+		}
+	});
+}); 
+
+app.post('/pkmns' , function(req, res){
+
+	var name = req.param('name');
+	var type = req.param('type');
+	var password = req.param('password');
+
+	new Pokemon({
+		'name': name,
+		'type': type,
+		'password': password,
+		'created_at': new Date()
+	}).save(function(error, pkmn) {
+		if (error) {
+			res.json({error: 'Não foi possivel salvar'});
+		}else{
+			res.json(pkmn);
+		}	
+	});
 });
 
-app.put('/users' , function(req, res){
-	res.end('put users');
+app.put('/pkmn' , function(req, res){
+
+	var id = req.param('id');
+	var name = req.param('name');
+	var type = req.param('type');
+	var password = req.param('password');
+
+	Pokemon.findById(id, function(error, pkmn){
+		if(name){
+			pkmn.name = name;
+		}
+		if(type){
+			pkmn.type = type;
+		}
+		if(password){
+			pkmn.password = password;
+		}
+
+		pkmn.save(function(error, user) {
+			if (error) {
+				res.json({error: 'Não foi possivel salvar'});
+			}else{
+				res.json(pkmn);
+		}
+		});		
+	});
 }); 
 
-app.delete('/users/:id', function(req, res){
-	res.end('delete users');
+app.delete('/pkmn/:id', function(req, res){
+	var id = req.param('id');
+
+	Pokemon.findById(id, function(error, pkmn){
+		if (error) {
+			res.json({error: 'Não foi possivel retornar o pokemon'});
+		}else{
+			pkmn.remove(function(error){
+				if(!error){
+					res.json({response: 'Pokemon excluido com sucesso'})
+				}
+			});
+		}
+	});
 });
