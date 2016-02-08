@@ -10,6 +10,8 @@ var mongoose = require('mongoose').connect(db_string);
 
 var db = mongoose.connection;
 
+var validator = require('validator');
+
 var Pokemon;
 
 db.on('error', console.error.bind(console, 'Erro ao conectar no banco'));
@@ -52,7 +54,7 @@ app.get('/pkmns' , function(req, res){
 
 app.get('/pkmn/:id' , function(req, res){
 	
-	var id = req.param('id');
+	var id = validator.trim(validator.escape(req.param('id')));
 
 	Pokemon.findById(id, function(error, pkmn){
 		if (error) {
@@ -65,9 +67,9 @@ app.get('/pkmn/:id' , function(req, res){
 
 app.post('/pkmns' , function(req, res){
 
-	var name = req.param('name');
-	var type = req.param('type');
-	var password = req.param('password');
+	var name = validator.trim(validator.escape(req.param('name')));
+	var type = validator.trim(validator.escape(req.param('type')));
+	var password = validator.trim(validator.escape(req.param('password')));
 
 	new Pokemon({
 		'name': name,
@@ -85,10 +87,10 @@ app.post('/pkmns' , function(req, res){
 
 app.put('/pkmn' , function(req, res){
 
-	var id = req.param('id');
-	var name = req.param('name');
-	var type = req.param('type');
-	var password = req.param('password');
+	var id = validator.trim(validator.escape(req.param('id')));
+	var name = validator.trim(validator.escape(req.param('name')));
+	var type = validator.trim(validator.escape(req.param('type')));
+	var password = validator.trim(validator.escape(req.param('password')));
 
 	Pokemon.findById(id, function(error, pkmn){
 		if(name){
@@ -112,7 +114,7 @@ app.put('/pkmn' , function(req, res){
 }); 
 
 app.delete('/pkmn/:id', function(req, res){
-	var id = req.param('id');
+	var id = validator.trim(validator.escape(req.param('id')));
 
 	Pokemon.findById(id, function(error, pkmn){
 		if (error) {
