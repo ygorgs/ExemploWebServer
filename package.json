@@ -1,0 +1,22 @@
+{
+  "name": "exemplowebservice",
+  "version": "0.0.1",
+  "description": "exemplo de um web service",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "screecast",
+    "rest",
+    "restful"
+  ],
+  "author": "Ygor Santos",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.14.2",
+    "express": "^4.13.4",
+    "mongoose": "^4.4.2",
+    "validator": "^4.7.1"
+  }
+}
